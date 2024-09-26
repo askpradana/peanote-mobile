@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:peanote/constant/base_string.dart';
-import 'package:peanote/data/baseapi.dart';
+import 'views/my_home_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,28 +19,6 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-      ),
-      body: Center(
-        child: TextButton(
-          onPressed: () async {
-            var data = await BaseApi().get(BaseString.todos);
-            print(data);
-          },
-          child: Text('btnHome'.tr),
-        ),
-      ),
     );
   }
 }
