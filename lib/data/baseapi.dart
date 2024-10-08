@@ -1,9 +1,11 @@
 import 'dart:developer';
 
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:peanote/constant/base_string.dart';
+import 'package:peanote/views/widgets/pea_dialog.dart';
 
 class ApiException implements Exception {
   final String message;
@@ -31,11 +33,45 @@ class BaseApi extends GetxController {
       if (statusCode >= 200 && statusCode < 300) {
         return json.decode(body);
       } else if (statusCode >= 400 && statusCode < 500) {
-        throw ApiException('Client error: ${response.reasonPhrase}',
-            statusCode: statusCode);
+        // throw ApiException('Client error: ${response.reasonPhrase}',
+        //     statusCode: statusCode);
+        dynamic decodedBody = json.decode(body);
+        String message = decodedBody['error'];
+
+        Get.dialog(
+          PeaDialog(
+            title: 'Error',
+            content: '${[statusCode]} $message',
+            buttons: [
+              CupertinoDialogAction(
+                onPressed: () {
+                  Get.back();
+                },
+                child: const Text("Close"),
+              ),
+            ],
+          ),
+        );
       } else if (statusCode >= 500) {
-        throw ApiException('Server error: ${response.reasonPhrase}',
-            statusCode: statusCode);
+        // throw ApiException('Server error: ${response.reasonPhrase}',
+        //     statusCode: statusCode);
+        dynamic decodedBody = json.decode(body);
+        String message = decodedBody['error'];
+
+        Get.dialog(
+          PeaDialog(
+            title: 'Error',
+            content: '${[statusCode]} $message',
+            buttons: [
+              CupertinoDialogAction(
+                onPressed: () {
+                  Get.back();
+                },
+                child: const Text("Close"),
+              ),
+            ],
+          ),
+        );
       } else {
         throw ApiException('Unexpected status code: ${response.reasonPhrase}',
             statusCode: statusCode);
@@ -82,7 +118,7 @@ class BaseApi extends GetxController {
   Future<dynamic> post(String endpoint,
       {Map<String, String>? headers, dynamic body}) async {
     log('POST request to: $baseUrl$endpoint');
-    // debugPrint('Headers: $headers');
+    log('Headers: $headers');
     log('Body: $body');
 
     return _makeRequest(

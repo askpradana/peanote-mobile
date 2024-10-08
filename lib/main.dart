@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'views/my_home_page.dart';
+import 'package:get/get.dart';
+import 'package:peanote/constant/pea_theme.dart';
+import 'package:peanote/views/splash_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,14 +13,11 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(),
+      theme: PeaTheme.theme,
+      home: const SplashPage(),
     );
   }
 }
