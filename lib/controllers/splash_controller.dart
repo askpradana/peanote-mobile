@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
-import 'package:peanote/constant/secure_storage_key.dart';
+import 'package:peanote/constant/key.dart';
 import 'package:peanote/models/user_model.dart';
 import 'package:peanote/views/login_page.dart';
 import 'package:peanote/views/my_home_page.dart';
@@ -15,16 +15,16 @@ class SplashController extends GetxController {
 
   @override
   void onInit() {
-    _initPage();
+    _onInitPage();
     super.onInit();
   }
 
-  _initPage() async {
+  _onInitPage() async {
     await Future.delayed(const Duration(seconds: 3));
-    _checkLogin();
+    _onCheckLogin();
   }
 
-  Future<dynamic> _readUserData() async {
+  Future<dynamic> _onReadUserData() async {
     AndroidOptions getAndroidOptions() =>
         const AndroidOptions(encryptedSharedPreferences: true);
     final storage = FlutterSecureStorage(aOptions: getAndroidOptions());
@@ -36,8 +36,8 @@ class SplashController extends GetxController {
     return null;
   }
 
-  Future<void> _setUserData() async {
-    UserModel? model = await _readUserData();
+  Future<void> _onSetUserData() async {
+    UserModel? model = await _onReadUserData();
 
     if (model != null) {
       if (model.token.isNotEmpty) {
@@ -50,7 +50,7 @@ class SplashController extends GetxController {
     }
   }
 
-  Future<dynamic> _readOnBoardingData() async {
+  Future<dynamic> _onReadOnBoardingData() async {
     AndroidOptions getAndroidOptions() =>
         const AndroidOptions(encryptedSharedPreferences: true);
     final storage = FlutterSecureStorage(aOptions: getAndroidOptions());
@@ -64,11 +64,11 @@ class SplashController extends GetxController {
     return null;
   }
 
-  Future<dynamic> _checkLogin() async {
-    await _readOnBoardingData();
+  Future<dynamic> _onCheckLogin() async {
+    await _onReadOnBoardingData();
 
     if (isNewUser.value.isNotEmpty) {
-      await _setUserData();
+      await _onSetUserData();
 
       if (isLogin.value) {
         Get.offAll(() => const MyHomePage());

@@ -1,10 +1,9 @@
 import 'package:any_link_preview/any_link_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:peanote/controllers/add_notes_link_controller.dart';
 import 'package:peanote/views/widgets/pea_button.dart';
 import 'package:peanote/views/widgets/pea_textfield.dart';
-
-import '../controllers/add_notes_link_controller.dart';
 
 class AddNotesLinkPage extends StatelessWidget {
   const AddNotesLinkPage({super.key});
@@ -21,7 +20,7 @@ class AddNotesLinkPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Form link',
+                'From link',
                 style: TextStyle(fontSize: 24),
               ),
               const SizedBox(height: 16),
@@ -73,7 +72,8 @@ class AddNotesLinkPage extends StatelessWidget {
                     controller.onUpload();
                   },
                 );
-              })
+              }),
+              const SizedBox(height: 16),
             ],
           ),
         ),

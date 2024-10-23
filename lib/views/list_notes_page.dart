@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:peanote/constant/pea_theme.dart';
 import 'package:peanote/controllers/list_notes_controller.dart';
-import 'package:peanote/views/add_notes_music_page.dart';
+import 'package:peanote/views/add_notes_file_page.dart';
+import 'package:peanote/views/add_notes_record_page.dart';
 import 'package:peanote/views/add_notes_link_page.dart';
+import 'package:peanote/views/detail_notes_page.dart';
 import 'package:peanote/views/user_profile_page.dart';
 import 'package:peanote/views/widgets/pea_button.dart';
 
@@ -37,80 +39,92 @@ class ListNotesPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Row(
-                    children: [
-                      _choiceChip(
-                        text: 'All Notes',
-                        onTap: () {
-                          //
-                        },
-                      ),
-                      _choiceChip(
-                        text: 'Folders',
-                        onTap: () {
-                          //
-                        },
-                      ),
-                    ],
-                  ),
+                  //TODO : Hide for now.  Enable _choiceChip widget if ready to use
+                  // Row(
+                  //   children: [
+                  //     _choiceChip(
+                  //       text: 'All Notes',
+                  //       onTap: () {
+                  //         //
+                  //       },
+                  //     ),
+                  //     _choiceChip(
+                  //       text: 'Folders',
+                  //       onTap: () {
+                  //         //
+                  //       },
+                  //     ),
+                  //   ],
+                  // ),
                   const SizedBox(height: 16),
                   Expanded(
-                    child: ListView.builder(
-                      padding: EdgeInsets.zero,
-                      itemCount: controller.indexCount.value,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Column(
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(bottom: 5),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: PeaTheme.greyColor,
-                                ),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: ListTile(
-                                leading: Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: PeaTheme.purpleColor,
+                    child: Obx(() {
+                      return ListView.builder(
+                        padding: EdgeInsets.zero,
+                        itemCount: controller.notesMusicModel.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final item = controller.notesMusicModel[index];
+                          return Column(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  Get.to(() =>
+                                      DetailNotesPage(notesMusicModel: item));
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 5),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: PeaTheme.greyColor,
+                                    ),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: const Center(
-                                    child: Text(
-                                      'A',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
+                                  child: ListTile(
+                                    leading: Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: PeaTheme.purpleColor,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          item.transcription?.title
+                                                  ?.substring(0, 1) ??
+                                              '',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                          ),
+                                        ),
                                       ),
                                     ),
+                                    title: Text(
+                                      item.transcription?.title ?? '',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      item.transcription?.createdAt ?? '',
+                                    ),
+                                    trailing: const Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 15),
                                   ),
-                                ),
-                                title: const Text(
-                                  'Welcome! This is sample notes bla bla bla',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                subtitle: const Text('27 Sep 2024'),
-                                trailing: IconButton(
-                                  onPressed: () {},
-                                  icon: const Icon(Icons.arrow_forward_ios,
-                                      size: 15),
                                 ),
                               ),
-                            ),
-                            index == controller.indexCount.value - 1
-                                ? const SizedBox(
-                                    height: 70,
-                                  )
-                                : const SizedBox(),
-                          ],
-                        );
-                      },
-                    ),
+                              index == controller.notesMusicModel.length - 1
+                                  ? const SizedBox(
+                                      height: 70,
+                                    )
+                                  : const SizedBox(),
+                            ],
+                          );
+                        },
+                      );
+                    }),
                   ),
                 ],
               ),
@@ -125,13 +139,16 @@ class ListNotesPage extends StatelessWidget {
                         controller.isDisplay.value
                             ? _addNotesButton(
                                 onTapLink: () {
+                                  controller.onCloseDisplaySubButton();
                                   Get.to(() => const AddNotesLinkPage());
                                 },
                                 onTapMusic: () {
-                                  Get.to(() => const AddNotesMusicPage());
+                                  controller.onCloseDisplaySubButton();
+                                  Get.to(() => const AddNotesRecordPage());
                                 },
                                 onTapFolder: () {
-                                  //
+                                  controller.onCloseDisplaySubButton();
+                                  Get.to(() => const AddNotesFilePage());
                                 },
                               )
                             : const SizedBox(),
@@ -139,9 +156,9 @@ class ListNotesPage extends StatelessWidget {
                         SizedBox(
                           width: 178,
                           child: PeaButton(
-                            pinkButton: true,
+                            secondaryButton: true,
                             onPressed: () {
-                              controller.addNotes();
+                              controller.onDisplaySubButton();
                             },
                             title: 'New note',
                           ),
@@ -205,25 +222,26 @@ Widget _addNotesButtonComponent({
   );
 }
 
-Widget _choiceChip({required String text, required VoidCallback? onTap}) {
-  return InkWell(
-    splashColor: Colors.transparent,
-    highlightColor: Colors.transparent,
-    onTap: onTap,
-    child: Container(
-      margin: const EdgeInsets.only(right: 5),
-      height: 40,
-      width: 80,
-      decoration: BoxDecoration(
-        border: Border.all(color: PeaTheme.greyColor),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Center(
-        child: Text(
-          text,
-          style: const TextStyle(fontWeight: FontWeight.w500),
-        ),
-      ),
-    ),
-  );
-}
+// Widget _choiceChip({required String text, required VoidCallback? onTap}) {
+//   return InkWell(
+//     splashColor: Colors.transparent,
+//     highlightColor: Colors.transparent,
+//     onTap: onTap,
+//     child: Container(
+//       margin: const EdgeInsets.only(right: 5),
+//       height: 40,
+//       width: 80,
+//       decoration: BoxDecoration(
+//         border: Border.all(color: PeaTheme.purpleColor),
+//         borderRadius: BorderRadius.circular(10),
+//       ),
+//       child: Center(
+//         child: Text(
+//           text,
+//           style: const TextStyle(fontWeight: FontWeight.w500),
+//           textAlign: TextAlign.center,
+//         ),
+//       ),
+//     ),
+//   );
+// }

@@ -1,10 +1,9 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
-import 'package:peanote/constant/secure_storage_key.dart';
+import 'package:peanote/constant/key.dart';
 
 class OnBoardingController extends GetxController {
   int currentIndex = 0;
-
   List<String> title = ['Record', 'Summarize', 'Practices'];
   List<String> description = [
     'Capture today class',
@@ -12,14 +11,14 @@ class OnBoardingController extends GetxController {
     'Capture faster, study smarter, grade greater'
   ];
 
-  void moveToNextPage(controller) {
+  void onMoveToNextPage(controller) {
     if (currentIndex < 2) {
       currentIndex++;
     }
     controller.jumpToPage(currentIndex);
   }
 
-  Future<void> writeOnBoarding() async {
+  Future<void> onWriteOnBoarding() async {
     AndroidOptions getAndroidOptions() =>
         const AndroidOptions(encryptedSharedPreferences: true);
     final storage = FlutterSecureStorage(aOptions: getAndroidOptions());

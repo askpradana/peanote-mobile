@@ -7,4 +7,5 @@ class BaseString {
   static const String logout = '/auth/logout';
   static const String generateOTP = '/otp/generate';
   static const String verifyOTP = '/otp/verify';
+  static const String uploadMusicNotes = '/prompt/upload';
 }

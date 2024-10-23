@@ -1,11 +1,13 @@
 import 'dart:developer';
 
-import 'package:flutter/cupertino.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 import 'dart:convert';
 import 'package:peanote/constant/base_string.dart';
-import 'package:peanote/views/widgets/pea_dialog.dart';
 
 class ApiException implements Exception {
   final String message;
@@ -38,19 +40,13 @@ class BaseApi extends GetxController {
         dynamic decodedBody = json.decode(body);
         String message = decodedBody['error'];
 
-        Get.dialog(
-          PeaDialog(
-            title: 'Error',
-            content: '${[statusCode]} $message',
-            buttons: [
-              CupertinoDialogAction(
-                onPressed: () {
-                  Get.back();
-                },
-                child: const Text("Close"),
-              ),
-            ],
-          ),
+        Get.defaultDialog(
+          title: 'Error',
+          content: Text('${[statusCode]} $message'),
+          textConfirm: 'Close',
+          onConfirm: () {
+            Get.back();
+          },
         );
       } else if (statusCode >= 500) {
         // throw ApiException('Server error: ${response.reasonPhrase}',
@@ -58,19 +54,13 @@ class BaseApi extends GetxController {
         dynamic decodedBody = json.decode(body);
         String message = decodedBody['error'];
 
-        Get.dialog(
-          PeaDialog(
-            title: 'Error',
-            content: '${[statusCode]} $message',
-            buttons: [
-              CupertinoDialogAction(
-                onPressed: () {
-                  Get.back();
-                },
-                child: const Text("Close"),
-              ),
-            ],
-          ),
+        Get.defaultDialog(
+          title: 'Error',
+          content: Text('${[statusCode]} $message'),
+          textConfirm: 'Close',
+          onConfirm: () {
+            Get.back();
+          },
         );
       } else {
         throw ApiException('Unexpected status code: ${response.reasonPhrase}',
@@ -125,11 +115,58 @@ class BaseApi extends GetxController {
       () => http.post(
         Uri.parse('$baseUrl$endpoint'),
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type':
+              'application/json', //TODO : error 500 on refresh token
           ...?headers,
         },
         body: json.encode(body),
       ),
     );
+  }
+
+  Future<http.StreamedResponse> postMultipart(
+    String endpoint, {
+    Map<String, String>? headers,
+    required Map<String, dynamic> body,
+    required PlatformFile file,
+    required String bearerToken,
+  }) async {
+    log('POST request to: $endpoint');
+    log('Body: $body');
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse(endpoint),
+    );
+    request.headers.addAll({
+      ...?headers,
+      'Authorization': 'Bearer $bearerToken',
+    });
+    String? mimeType =
+        lookupMimeType(file.path ?? '', headerBytes: file.bytes) ??
+            'application/octet-stream';
+    MediaType mediaType = MediaType.parse(mimeType);
+    if (file.bytes != null) {
+      request.files.add(http.MultipartFile.fromBytes(
+        'audio',
+        file.bytes!,
+        filename: file.name,
+        contentType: mediaType,
+      ));
+    } else if (file.path != null) {
+      request.files.add(await http.MultipartFile.fromPath(
+        'audio',
+        file.path!,
+        contentType: mediaType,
+      ));
+    } else {
+      throw Exception('No bytes or path found for selected file');
+    }
+    body.forEach((key, value) {
+      request.fields[key] = value.toString();
+    });
+    log('Fields: ${request.fields}');
+    log('Headers: ${request.headers}');
+    log('Files: ${request.files.map((f) => f.filename).toList()}');
+    return await request.send();
   }
 }
