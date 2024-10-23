@@ -4,9 +4,10 @@ import 'dart:developer';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:peanote/constant/base_string.dart';
-import 'package:peanote/constant/secure_storage_key.dart';
+import 'package:peanote/constant/key.dart';
 import 'package:peanote/data/baseapi.dart';
 import 'package:peanote/models/user_model.dart';
+import 'package:peanote/services/user_data_storage.dart';
 
 class HomeController extends GetxController {
   RxString token = ''.obs;
@@ -17,24 +18,12 @@ class HomeController extends GetxController {
 
   @override
   void onInit() {
-    _setUserData();
+    _onSetUserData();
     super.onInit();
   }
 
-  Future<dynamic> _readFromSecureStorage() async {
-    AndroidOptions getAndroidOptions() =>
-        const AndroidOptions(encryptedSharedPreferences: true);
-    final storage = FlutterSecureStorage(aOptions: getAndroidOptions());
-
-    String? json = await storage.read(key: SecureStorageKey.loginResp);
-    if (json != null) {
-      return UserModel.fromJson(jsonDecode(json));
-    }
-    return null;
-  }
-
-  Future<void> _setUserData() async {
-    UserModel? model = await _readFromSecureStorage();
+  Future<void> _onSetUserData() async {
+    UserModel? model = await UserDataStorage.onReadFromSecureStorage();
 
     if (model != null) {
       token.value = model.token;
@@ -65,7 +54,7 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> _setNewRefreshToken(String response) async {
+  Future<void> _onSetNewRefreshToken(String response) async {
     AndroidOptions getAndroidOptions() =>
         const AndroidOptions(encryptedSharedPreferences: true);
     final storage = FlutterSecureStorage(aOptions: getAndroidOptions());
@@ -84,7 +73,7 @@ class HomeController extends GetxController {
           key: SecureStorageKey.loginResp,
           value: jsonEncode(userModel.toJson()));
 
-      _setUserData();
+      _onSetUserData();
     }
   }
 
@@ -92,14 +81,11 @@ class HomeController extends GetxController {
     Map<String, String> headers = {};
     headers['Authorization'] = 'Bearer ${refreshToken.value}';
 
-    // Map<dynamic, dynamic> body = {};
-    // body['refreshToken'] = refreshToken.value;
-
     var response =
         await BaseApi().post(BaseString.refreshToken, headers: headers);
 
     if (response['token'] != null) {
-      _setNewRefreshToken(response['token']);
+      _onSetNewRefreshToken(response['token']);
     }
   }
 }

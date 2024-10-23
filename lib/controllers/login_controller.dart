@@ -1,22 +1,23 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:peanote/constant/base_string.dart';
-import 'package:peanote/constant/secure_storage_key.dart';
+import 'package:peanote/constant/key.dart';
 import 'package:peanote/data/baseapi.dart';
 import 'package:peanote/models/user_model.dart';
 import 'package:peanote/views/my_home_page.dart';
-import 'package:peanote/views/widgets/pea_dialog.dart';
 
 class LoginController extends GetxController {
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
-
-  UserModel? userModel;
-
   RxBool obscurePassword = true.obs;
+  UserModel? _userModel;
+
+  void onObsecurePassword() {
+    obscurePassword.value = !obscurePassword.value;
+  }
 
   Future<void> onLogin() async {
     Map<dynamic, dynamic> body = {};
@@ -25,38 +26,28 @@ class LoginController extends GetxController {
 
     var response = await BaseApi().post(BaseString.login, body: body);
     if (response['token'] != null) {
-      userModel = UserModel.fromJson(response);
+      _userModel = UserModel.fromJson(response);
       final userData = response['userData'];
 
-      await _writeUserData();
+      await _onWriteUserData();
 
-      Get.dialog(
-        PeaDialog(
-          title: 'Success',
-          content: 'Welcome ${userData['username']}',
-          buttons: [
-            CupertinoDialogAction(
-              onPressed: () {
-                Get.offAll(() => const MyHomePage());
-              },
-              child: const Text("Oke"),
-            ),
-          ],
-        ),
+      Get.defaultDialog(
+        title: 'Success',
+        content: Text('Welcome ${userData['username']}'),
+        textConfirm: 'Oke',
+        onConfirm: () {
+          Get.offAll(() => const MyHomePage());
+        },
       );
     }
   }
 
-  Future<void> _writeUserData() async {
+  Future<void> _onWriteUserData() async {
     AndroidOptions getAndroidOptions() =>
         const AndroidOptions(encryptedSharedPreferences: true);
     final storage = FlutterSecureStorage(aOptions: getAndroidOptions());
 
-    String json = jsonEncode(userModel?.toJson());
+    String json = jsonEncode(_userModel?.toJson());
     await storage.write(key: SecureStorageKey.loginResp, value: json);
-  }
-
-  void onObsecurePassword() {
-    obscurePassword.value = !obscurePassword.value;
   }
 }

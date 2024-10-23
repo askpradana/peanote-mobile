@@ -1,11 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:peanote/constant/pea_theme.dart';
 import 'package:peanote/controllers/home_controller.dart';
 import 'package:peanote/views/login_page.dart';
 import 'package:peanote/views/widgets/pea_button.dart';
-import 'package:peanote/views/widgets/pea_dialog.dart';
 
 class UserProfilePage extends StatelessWidget {
   const UserProfilePage({Key? key}) : super(key: key);
@@ -132,27 +130,19 @@ class UserProfilePage extends StatelessWidget {
   }
 
   Future<dynamic> _onLogout({required HomeController controller}) {
-    return Get.dialog(
-      PeaDialog(
-        title: 'Confirm Exit',
-        content: 'Are you sure want to exit?',
-        buttons: [
-          CupertinoDialogAction(
-            onPressed: () async {
-              Get.back();
-              await controller.onLogout();
-              Get.offAll(() => const LoginPage());
-            },
-            child: const Text("Yes"),
-          ),
-          CupertinoDialogAction(
-            onPressed: () {
-              Get.back();
-            },
-            child: const Text("No"),
-          ),
-        ],
-      ),
+    return Get.defaultDialog(
+      title: 'Confirm Exit',
+      content: const Text('Are you sure want to exit?'),
+      textConfirm: 'Yes',
+      onConfirm: () async {
+        Get.back();
+        await controller.onLogout();
+        Get.offAll(() => const LoginPage());
+      },
+      textCancel: 'No',
+      onCancel: () {
+        Get.back();
+      },
     );
   }
 }

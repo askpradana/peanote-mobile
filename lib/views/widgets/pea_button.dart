@@ -5,14 +5,16 @@ class PeaButton extends StatelessWidget {
   final ButtonType? type;
   final String title;
   final VoidCallback? onPressed;
-  final bool? pinkButton;
+  final bool? secondaryButton;
+  final IconData? icon;
 
   const PeaButton({
     super.key,
     this.type,
     required this.title,
     required this.onPressed,
-    this.pinkButton = false,
+    this.secondaryButton = false,
+    this.icon,
   });
 
   @override
@@ -32,17 +34,28 @@ class PeaButton extends StatelessWidget {
       width: double.infinity,
       height: 40,
       child: ElevatedButton(
-        style: pinkButton == true
+        style: secondaryButton == true
             ? ElevatedButton.styleFrom(
                 foregroundColor: PeaTheme.purpleColor,
                 backgroundColor: PeaTheme.pinkColor,
               )
             : null,
         onPressed: onPressed,
-        child: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.w500),
-        ),
+        child: icon != null
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Icon(icon),
+                  Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ],
+              )
+            : Text(
+                title,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
       ),
     );
   }

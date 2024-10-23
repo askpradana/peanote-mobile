@@ -67,7 +67,7 @@ class OnBoardingPage extends StatelessWidget {
                       if (controller.currentIndex == 2) {
                         Get.to(() => const OnBoardingLast());
                       } else {
-                        controller.moveToNextPage(pageController);
+                        controller.onMoveToNextPage(pageController);
                       }
                     },
                   ),
@@ -132,7 +132,7 @@ class OnBoardingLast extends StatelessWidget {
                 type: ButtonType.outlinedButton,
                 title: "Let's Go",
                 onPressed: () async {
-                  await controller.writeOnBoarding();
+                  await controller.onWriteOnBoarding();
                   Get.offAll(() => const LoginPage());
                 },
               ),
